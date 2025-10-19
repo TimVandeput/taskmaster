@@ -1,15 +1,21 @@
 ﻿services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"    # AMQP
+      - "15672:15672"  # Management UI
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
   auth-service:
     build: ./auth-service
     image: taskmaster/auth-service:latest
     ports: ["8081:8080"]
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
-      interval: 15s
-      timeout: 3s
-      retries: 6
 
   task-service:
     build: ./task-service
@@ -17,11 +23,6 @@
     ports: ["8082:8080"]
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
-      interval: 15s
-      timeout: 3s
-      retries: 6
 
   feed-service:
     build: ./feed-service
@@ -29,11 +30,6 @@
     ports: ["8083:8080"]
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
-      interval: 15s
-      timeout: 3s
-      retries: 6
 
 networks:
   default:
