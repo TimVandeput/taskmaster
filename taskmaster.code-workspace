@@ -1,0 +1,11 @@
+{
+  "folders": [
+    { "path": "." },
+    { "path": "auth-service" },
+    { "path": "task-service" },
+    { "path": "feed-service" }
+  ],
+  "settings": {
+    "java.configuration.updateBuildConfiguration": "automatic"
+  }
+}

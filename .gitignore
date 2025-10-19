@@ -1,0 +1,11 @@
+﻿# Java / Maven
+**/target/
+*.iml
+!.mvn/wrapper/maven-wrapper.jar
+
+# VS Code
+.vscode/
+
+# OS junk
+.DS_Store
+Thumbs.db
