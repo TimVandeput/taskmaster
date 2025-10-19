@@ -1,36 +1,63 @@
 ﻿services:
   rabbitmq:
     image: rabbitmq:3-management
-    ports:
-      - "5672:5672"    # AMQP
-      - "15672:15672"  # Management UI
-    healthcheck:
-      test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 12
+    ports: ["5672:5672","15672:15672"]
 
+  # --- Databases ---
+  postgres-auth:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: authdb
+      POSTGRES_USER: auth
+      POSTGRES_PASSWORD: auth
+    ports: ["5433:5432"]
+    volumes: [ "pgdata-auth:/var/lib/postgresql/data" ]
+
+  postgres-task:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: taskdb
+      POSTGRES_USER: task
+      POSTGRES_PASSWORD: task
+    ports: ["5434:5432"]
+    volumes: [ "pgdata-task:/var/lib/postgresql/data" ]
+
+  postgres-feed:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: feeddb
+      POSTGRES_USER: feed
+      POSTGRES_PASSWORD: feed
+    ports: ["5435:5432"]
+    volumes: [ "pgdata-feed:/var/lib/postgresql/data" ]
+
+  # --- Services ---
   auth-service:
     build: ./auth-service
     image: taskmaster/auth-service:latest
     ports: ["8081:8080"]
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
+    environment: [ "SPRING_PROFILES_ACTIVE=docker" ]
+    depends_on: [ rabbitmq, postgres-auth ]
 
   task-service:
-    build: ./task-service
+    build: ./task_service
     image: taskmaster/task-service:latest
     ports: ["8082:8080"]
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
+    environment: [ "SPRING_PROFILES_ACTIVE=docker" ]
+    depends_on: [ rabbitmq, postgres-task ]
 
   feed-service:
-    build: ./feed-service
+    build: ./feed_service
     image: taskmaster/feed-service:latest
     ports: ["8083:8080"]
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
+    environment: [ "SPRING_PROFILES_ACTIVE=docker" ]
+    depends_on: [ rabbitmq, postgres-feed ]
 
 networks:
   default:
     name: taskmaster-net
+
+volumes:
+  pgdata-auth:
+  pgdata-task:
+  pgdata-feed:
