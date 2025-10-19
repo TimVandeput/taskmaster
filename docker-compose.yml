@@ -1,7 +1,7 @@
 ﻿services:
   rabbitmq:
     image: rabbitmq:3-management
-    ports: ["5672:5672","15672:15672"]
+    ports: ["5672:5672", "15672:15672"]
 
   # --- Databases ---
   postgres-auth:
@@ -11,7 +11,7 @@
       POSTGRES_USER: auth
       POSTGRES_PASSWORD: auth
     ports: ["5433:5432"]
-    volumes: [ "pgdata-auth:/var/lib/postgresql/data" ]
+    volumes: ["pgdata-auth:/var/lib/postgresql/data"]
 
   postgres-task:
     image: postgres:16
@@ -20,7 +20,7 @@
       POSTGRES_USER: task
       POSTGRES_PASSWORD: task
     ports: ["5434:5432"]
-    volumes: [ "pgdata-task:/var/lib/postgresql/data" ]
+    volumes: ["pgdata-task:/var/lib/postgresql/data"]
 
   postgres-feed:
     image: postgres:16
@@ -29,29 +29,29 @@
       POSTGRES_USER: feed
       POSTGRES_PASSWORD: feed
     ports: ["5435:5432"]
-    volumes: [ "pgdata-feed:/var/lib/postgresql/data" ]
+    volumes: ["pgdata-feed:/var/lib/postgresql/data"]
 
   # --- Services ---
   auth-service:
     build: ./auth-service
     image: taskmaster/auth-service:latest
     ports: ["8081:8080"]
-    environment: [ "SPRING_PROFILES_ACTIVE=docker" ]
-    depends_on: [ rabbitmq, postgres-auth ]
+    environment: ["SPRING_PROFILES_ACTIVE=docker"]
+    depends_on: [rabbitmq, postgres-auth]
 
   task-service:
-    build: ./task_service
+    build: ./task-service
     image: taskmaster/task-service:latest
     ports: ["8082:8080"]
-    environment: [ "SPRING_PROFILES_ACTIVE=docker" ]
-    depends_on: [ rabbitmq, postgres-task ]
+    environment: ["SPRING_PROFILES_ACTIVE=docker"]
+    depends_on: [rabbitmq, postgres-task]
 
   feed-service:
-    build: ./feed_service
+    build: ./feed-service
     image: taskmaster/feed-service:latest
     ports: ["8083:8080"]
-    environment: [ "SPRING_PROFILES_ACTIVE=docker" ]
-    depends_on: [ rabbitmq, postgres-feed ]
+    environment: ["SPRING_PROFILES_ACTIVE=docker"]
+    depends_on: [rabbitmq, postgres-feed]
 
 networks:
   default:
